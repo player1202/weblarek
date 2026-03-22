@@ -1,41 +1,36 @@
-export interface IBuyer {
-  payment: string;
-  email: string;
-  phone: string;
-  address: string;
-}
+import { IBuyer } from "../../types";
+import { ErrorItem } from "../../types";
 export class Customers {
-    private data:IBuyer;
+  private data: IBuyer;
 
-    constructor() {
-        this.data = {
-            payment: null,
-            email: null,
-            phone: null,
-            address: null
-        };
-    }
+  constructor() {
+    this.data = {
+      payment: "",
+      email: "",
+      phone: "",
+      address: "",
+    };
+  }
 
-    saveData(field: keyof typeof this.data, value: string) {
-        this.data[field] = value;
-    }
+  saveData(field: keyof typeof this.data, value: string) {
+    this.data[field] = value;
+  }
 
-    getAllData(): { [key: string]: string | null } {
-        return { ...this.data };
-    }
+  getAllData(): { [key: string]: string | null } {
+    return { ...this.data };
+  }
 
-    resetData() {
-        this.data = { paymentMethod: null, address: null, phone: null, email: null };
-    }
+  resetData() {
+    this.data = { payment: null, address: null, phone: null, email: null };
+  }
 
-    validateData(): { field: string; error: string }[] {
-        const errors: { field: string; error: string }[] = [];
-        for (const [field, value] of Object.entries(this.data)) {
-            if (!value) {
-                errors.push({ field, error: `Field ${field} is required` });
-            }
+validateData(): Partial<Record<keyof IBuyer, string>> {
+    const errors: Partial<Record<keyof IBuyer, string>> = {};
+    for (const [field, value] of Object.entries(this.data)) {
+        if (!value) {
+            errors[field as keyof IBuyer] = `Field ${field} is required`;
         }
-        return errors;
     }
+    return errors;
 }
- 
+}

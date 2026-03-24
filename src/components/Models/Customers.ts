@@ -1,8 +1,7 @@
 import { IBuyer } from "../../types";
-import { ErrorItem } from "../../types";
+import { ErrorMessage } from "../../types";
 export class Customers {
   private data: IBuyer;
-
   constructor() {
     this.data = {
       payment: "",
@@ -21,16 +20,21 @@ export class Customers {
   }
 
   resetData() {
-    this.data = { payment: null, address: null, phone: null, email: null };
+    this.data = {
+      payment: '',
+      address: '',
+      phone: '',
+      email: '',
+    };
   }
 
-validateData(): Partial<Record<keyof IBuyer, string>> {
-    const errors: Partial<Record<keyof IBuyer, string>> = {};
-    for (const [field, value] of Object.entries(this.data)) {
-        if (!value) {
-            errors[field as keyof IBuyer] = `Field ${field} is required`;
+  validateData(): ErrorMessage {
+        const errors: ErrorMessage = {};
+        for (const [field, value] of Object.entries(this.data)) {
+            if (!value) {
+                errors[field as keyof IBuyer] = `Поле ${field} обязательно для заполнения`;
+            }
         }
+        return errors;
     }
-    return errors;
-}
 }

@@ -4,7 +4,8 @@ import { IProduct } from "./types";
 import { Customers } from "./components/Models/Customers";
 import { Catalog } from "./components/Models/Catalog";
 import { ServerCommunication } from "./components/Models/ServerCommunication";
-import { IApi } from "./types";
+import { Api } from "./components/base/Api";
+import { API_URL } from "./utils/constants";
 // Создаём несколько товаров
 const product1: IProduct = {
   id: "1",
@@ -70,28 +71,7 @@ console.log("Товар с ID 1:", catalog.getProductById("1")); // Должен
 catalog.setSelectedProduct(product1);
 console.log("Выбранный товар:", catalog.getSelectedProduct()); // Должен быть product1
 
-const api: IApi = {
-  get: async (endpoint: string): Promise<any> => {
-    const response = await fetch(endpoint);
-    if (!response.ok) {
-      throw new Error(`Ошибка при получении данных: ${response.statusText}`);
-    }
-    return response.json();
-  },
-  post: async (endpoint: string, data: any): Promise<any> => {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      throw new Error(`Ошибка при отправке данных: ${response.statusText}`);
-    }
-    return response.json();
-  },
-};
+const api = new Api(API_URL);
 
 const serverCommunication = new ServerCommunication(api);
 
@@ -102,4 +82,4 @@ const serverCommunication = new ServerCommunication(api);
   } catch (error) {
     console.error("Ошибка при получении товаров:", error);
   }
-})();
+})(); 

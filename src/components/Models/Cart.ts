@@ -24,6 +24,6 @@ export class Cart {
     } 
  
     hasItem(productId: string): boolean { 
-        return this.items.some(item => item.id === String(productId)); 
+        return this.items.some(item => item.id === productId); 
     } 
 } 

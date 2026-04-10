@@ -1,5 +1,6 @@
 import { IBuyer } from "../../types";
 import { ErrorMessage } from "../../types";
+import { IEvents } from "../base/Events";
 export class Customers {
   private data: IBuyer;
   constructor() {
@@ -37,4 +38,29 @@ export class Customers {
         }
         return errors;
     }
+}
+export class CustomerModel {
+  private name: string = '';
+  private phone: string = '';
+  private address: string = '';
+  private _events: IEvents;
+
+  constructor(events: IEvents) {
+    this._events = events;
+  }
+
+  setName(name: string): void {
+    this.name = name;
+    this._events.emit('customer:data-change', { field: 'name', value: name });
+  }
+
+  setPhone(phone: string): void {
+    this.phone = phone;
+    this._events.emit('customer:data-change', { field: 'phone', value: phone });
+  }
+
+  setAddress(address: string): void {
+    this.address = address;
+    this._events.emit('customer:data-change', { field: 'address', value: address });
+  }
 }

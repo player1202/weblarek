@@ -12,6 +12,9 @@ export interface IProduct {
   category: string;
   price: number | null;
 } 
+export interface ICardActions {
+    onClick: () => void;
+}
 export interface IOrderResponse {
   orderId: string;
   totalAmount: number;

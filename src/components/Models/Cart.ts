@@ -1,4 +1,5 @@
 import { IProduct } from "../../types";
+import { IEvents } from "../base/Events";
 export class Cart { 
     private items: IProduct[] = []; 
  
@@ -27,3 +28,44 @@ export class Cart {
         return this.items.some(item => item.id === productId); 
     } 
 } 
+
+export class CartModel {
+  private items: IProduct[] = [];
+  private _events: IEvents;
+
+  constructor(events: IEvents) {
+    this._events = events;
+  }
+
+  addItem(product: IProduct): void {
+    this.items.push(product);
+    this._events.emit('cart:update', {
+      action: 'add',
+      productId: product.id,
+      itemsCount: this.items.length
+    });
+  }
+
+  removeItem(productId: string): void {
+    const initialLength = this.items.length;
+    this.items = this.items.filter(item => item.id !== productId);
+
+    if (initialLength !== this.items.length) {
+      this._events.emit('cart:update', {
+        action: 'remove',
+        productId,
+        itemsCount: this.items.length
+      });
+    }
+  }
+
+  updateQuantity(productId: string, quantity: number): void {
+    // логика обновления количества
+    this._events.emit('cart:update', {
+      action: 'quantity_change',
+      productId,
+      quantity,
+      itemsCount: this.items.length
+    });
+  }
+}

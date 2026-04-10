@@ -6,6 +6,9 @@ import { Catalog } from "./components/Models/Catalog";
 import { ServerCommunication } from "./components/Models/ServerCommunication";
 import { Api } from "./components/base/Api";
 import { API_URL } from "./utils/constants";
+import { BasketCardView } from "./components/View/BasketCardView";
+import { createElement } from "./utils/utils";
+import { ConcreteProductCard } from "./components/View/BaseProductCardView";
 // Создаём несколько товаров
 const product1: IProduct = {
   id: "1",
@@ -82,4 +85,55 @@ const serverCommunication = new ServerCommunication(api);
   } catch (error) {
     console.error("Ошибка при получении товаров:", error);
   }
-})(); 
+})();
+const cardContainer = createElement('div', {
+  className: 'card',
+  innerHTML: `
+    <h2 class="card__title">Название товара</h2>
+    <p class="card__price">Цена товара</p>
+  `
+});
+
+document.querySelector('main.gallery')?.appendChild(cardContainer);
+
+const productCard = new ConcreteProductCard(cardContainer);
+
+console.log(productCard.getTitleElement()); // Теперь можно получить доступ к titleElement
+console.log(productCard.getPriceElement());  // Теперь можно получить доступ к priceElement
+
+// Проверяем работу сеттеров (они работают как и раньше)
+productCard.title = 'Новый заголовок';
+productCard.price = 1000;
+
+console.log('Заголовок:', productCard.getTitleElement().textContent);
+console.log('Цена:', productCard.getPriceElement().textContent);
+
+productCard.price = null;
+console.log('Цена после null:', productCard.getPriceElement().textContent); // "Бесценно"
+
+const container = createElement('li', {
+  className: 'basket__item card card_compact',
+  innerHTML: `
+    <span class="basket__item-index">1</span>
+    <span class="card__title">Фреймворк куки судьбы</span>
+    <span class="card__price">2500 синапсов</span>
+    <button class="basket__item-delete card__button" aria-label="удалить"></button>
+  `
+});
+
+document.querySelector('main.gallery')?.appendChild(container);
+
+// Создаём экземпляр компонента
+const basketCard = new BasketCardView(container);
+
+// Проверяем установку индекса
+basketCard.index = 2;
+console.log(basketCard.productIndexElement.textContent); // Должно быть "2"
+
+// Тестируем обработчик клика
+basketCard.getDeleteButton().addEventListener('click', () => {
+  console.log('Кнопка удаления нажата!');
+});
+basketCard.getDeleteButton().click(); // Имитируем клик по кнопке
+ 
+ 

@@ -30,9 +30,11 @@ export class BasketCardView extends BaseProductCardView<ProductInBasketData> {
     this.productIndexElement.textContent = String(value);
   }
 
-  // Геттер для доступа к кнопке удаления
-  getDeleteButton(): HTMLButtonElement {
+  // Геттер для доступа к productIndexElement
+  getProductIndexElement(): HTMLElement {
+    return this.productIndexElement;
+  }
+   getDeleteButton(): HTMLButtonElement {
     return this.deleteButton;
   }
-  
 }

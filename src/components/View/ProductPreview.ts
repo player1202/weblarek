@@ -1,11 +1,10 @@
 
 import { IEvents } from "../base/Events";
 import { BaseProductCardView } from "./BaseProductCardView";
-import { IProduct } from "../../types";
 
 export class ProductPreview extends BaseProductCardView<HTMLElement> {
-  constructor(container: HTMLElement, events: IEvents, product: IProduct) {
-    super(container, events, product);
+  constructor(container: HTMLElement, events: IEvents) {
+    super(container, events);
   }
 
   handleClick(): void {

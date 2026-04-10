@@ -7,8 +7,15 @@ import { ServerCommunication } from "./components/Models/ServerCommunication";
 import { Api } from "./components/base/Api";
 import { API_URL } from "./utils/constants";
 import { BasketCardView } from "./components/View/BasketCardView";
-import { createElement } from "./utils/utils";
+import { ModalWindow } from "./components/View/ModalView";
+import { ProductPreview } from "./components/View/PreviewCardView";
 import { ConcreteProductCard } from "./components/View/BaseProductCardView";
+import { EventEmitter, IEvents } from "./components/base/Events";
+import { ICardActions } from "./types";
+import { ProductInGallery } from "./components/View/ProductInGallery";
+import { BasketModal } from "./components/View/basketModal";
+import { OrderFormView } from "./components/View/OrderFormView";
+import { Header } from "./components/View/header";
 // Создаём несколько товаров
 const product1: IProduct = {
   id: "1",
@@ -86,54 +93,187 @@ const serverCommunication = new ServerCommunication(api);
     console.error("Ошибка при получении товаров:", error);
   }
 })();
-const cardContainer = createElement('div', {
-  className: 'card',
-  innerHTML: `
-    <h2 class="card__title">Название товара</h2>
-    <p class="card__price">Цена товара</p>
-  `
+//BaseProductCardView
+const cardTemplate = document.querySelector(
+  "#card-template",
+) as HTMLTemplateElement;
+
+// Импортируем фрагмент
+const fragment = document.importNode(cardTemplate.content, true);
+
+// Создаём обёртку — теперь у нас HTMLElement
+const cardInstance = document.createElement("div");
+cardInstance.appendChild(fragment);
+
+// Теперь можно создать карточку
+const productCard = new ConcreteProductCard(cardInstance);
+
+productCard.title = "Пример товара";
+productCard.price = 150;
+
+const container = document.querySelector(".products-container") as HTMLElement;
+container.appendChild(cardInstance);
+//BasketCardView
+const basketCardTemplate = document.querySelector(
+  "#basket-card-template",
+) as HTMLTemplateElement;
+
+const Basketfragment = document.importNode(basketCardTemplate.content, true);
+
+const BasketCardInstance = document.createElement("div");
+BasketCardInstance.appendChild(Basketfragment);
+
+const basketCard = new BasketCardView(cardInstance);
+basketCard.index = 1;
+
+const BasketContainer = document.querySelector(
+  ".basket-container",
+) as HTMLElement;
+
+BasketContainer.appendChild(cardInstance);
+//PreviewCardView
+const events = new EventEmitter();
+
+const productTemplate = document.querySelector(
+  "#product-preview-template",
+) as HTMLTemplateElement;
+
+const PreviewFragment = document.importNode(productTemplate.content, true);
+const PreviewCardInstance = document.createElement("div");
+PreviewCardInstance.appendChild(PreviewFragment);
+
+const PreviewProductCard = new ProductPreview(PreviewCardInstance, events);
+
+const PreviewContainer = document.querySelector(
+  ".products-container",
+) as HTMLElement;
+PreviewContainer.appendChild(PreviewCardInstance);
+
+events.on("product:choose", () => {
+  console.log("Продукт выбран!");
 });
 
-document.querySelector('main.gallery')?.appendChild(cardContainer);
+//ProductInGallery
 
-const productCard = new ConcreteProductCard(cardContainer);
+// 2. Получаем HTML‑шаблон карточки из DOM
+const galleryTemplate = document.querySelector(
+  "#gallery-card-template",
+) as HTMLTemplateElement;
 
-console.log(productCard.getTitleElement()); // Теперь можно получить доступ к titleElement
-console.log(productCard.getPriceElement());  // Теперь можно получить доступ к priceElement
+const GalleryFragment = document.importNode(galleryTemplate.content, true);
+const GalleryCardInstance = document.createElement("div");
+GalleryCardInstance.appendChild(GalleryFragment);
 
-// Проверяем работу сеттеров (они работают как и раньше)
-productCard.title = 'Новый заголовок';
-productCard.price = 1000;
+const actions: ICardActions = {
+  onClick: () => {
+    console.log("Карточка галереи нажата!");
+  },
+};
 
-console.log('Заголовок:', productCard.getTitleElement().textContent);
-console.log('Цена:', productCard.getPriceElement().textContent);
+const galleryCard = new ProductInGallery(GalleryCardInstance, actions);
 
-productCard.price = null;
-console.log('Цена после null:', productCard.getPriceElement().textContent); // "Бесценно"
+const GalleryContainer = document.querySelector(
+  ".gallery-container",
+) as HTMLElement;
+GalleryContainer.appendChild(GalleryCardInstance);
 
-const container = createElement('li', {
-  className: 'basket__item card card_compact',
-  innerHTML: `
-    <span class="basket__item-index">1</span>
-    <span class="card__title">Фреймворк куки судьбы</span>
-    <span class="card__price">2500 синапсов</span>
-    <button class="basket__item-delete card__button" aria-label="удалить"></button>
-  `
+//BasketModal
+const ModalEvents = new EventEmitter();
+
+const basketModalTemplate = document.querySelector('#basket-modal-template') as HTMLTemplateElement;
+
+const ModalFragment = document.importNode(basketModalTemplate.content, true);
+const modalInstance = document.createElement('div');
+modalInstance.appendChild(ModalFragment);
+
+const basketModal = new BasketModal(modalInstance, ModalEvents);
+
+const ModalContainer = document.querySelector('.modal-container') as HTMLElement;
+ModalContainer.appendChild(modalInstance);
+
+ModalEvents.on('busket:submit', () => {
+  console.log('Корзина отправлена!');
 });
 
-document.querySelector('main.gallery')?.appendChild(container);
+const productCard1 = document.createElement('div');
+productCard1.textContent = 'Товар 1';
+const productCard2 = document.createElement('div');
+productCard2.textContent = 'Товар 2';
 
-// Создаём экземпляр компонента
-const basketCard = new BasketCardView(container);
+basketModal.item = [productCard1, productCard2];
 
-// Проверяем установку индекса
-basketCard.index = 2;
-console.log(basketCard.productIndexElement.textContent); // Должно быть "2"
+basketModal.totalPrice = 150; 
 
-// Тестируем обработчик клика
-basketCard.getDeleteButton().addEventListener('click', () => {
-  console.log('Кнопка удаления нажата!');
+//header
+const HeaderEvents = new EventEmitter();
+
+const headerTemplate = document.querySelector('#header-template') as HTMLTemplateElement;
+
+const HeaderFragment = document.importNode(headerTemplate.content, true);
+const headerInstance = document.createElement('div');
+headerInstance.appendChild(HeaderFragment);
+
+const header = new Header(headerInstance, HeaderEvents);
+
+const HeaderContainer = document.querySelector('.header-container') as HTMLElement;
+HeaderContainer.appendChild(headerInstance);
+
+HeaderEvents.on('basket:open', () => {
+  console.log('Корзина открывается!');
 });
-basketCard.getDeleteButton().click(); // Имитируем клик по кнопке
+
+header.counter = 3; // устанавливаем значение счётчика товаров в корзине
+
+//ModalView
+const ModalViewEvents = new EventEmitter();
+
+const modalTemplate = document.querySelector('#modal-template') as HTMLTemplateElement;
+
+const ModalViewFragment = document.importNode(modalTemplate.content, true);
+const ViewModalInstance = document.createElement('div');
+ViewModalInstance.appendChild(ModalViewFragment);
+
+const modalWindow = new ModalWindow(ViewModalInstance, ModalViewEvents);
+
+const ModalViewContainer = document.querySelector('.modal-container') as HTMLElement;
+ModalViewContainer.appendChild(ViewModalInstance);
+
+ModalViewEvents.on('modal:close', () => {
+  console.log('Модальное окно закрывается!');
+  modalWindow.close();
+});
+
+//OrderFormView
+const orderEvents = new EventEmitter();
+
+//  Получаем HTML‑шаблон формы из DOM
+const orderTemplate = document.querySelector('#order-success-template') as HTMLTemplateElement;
+
+//  Преобразуем шаблон в DOM‑фрагмент
+const OrderFragment = document.importNode(orderTemplate.content, true);
+
+//  Создаём обёртку — контейнер для фрагмента
+const orderInstance = document.createElement('div');
+orderInstance.appendChild(OrderFragment);
+
+// Инициализируем компонент OrderFormView
+const orderForm = new OrderFormView(orderInstance, orderEvents);
+
+//  Находим контейнер в DOM, куда добавим форму
+const orderContainer = document.querySelector('.modal-container') as HTMLElement; 
+orderContainer.appendChild(orderInstance);
+
+//  Подписываемся на событие закрытия формы
+orderEvents.on('orderSucces:close', () => {
+  console.log('Форма успешного заказа закрывается!');
+  
+});
+
+//  Устанавливаем сумму, которая будет отображена в форме
+const totalOrderSum = 1500; 
+orderForm.totalSum = totalOrderSum;
+
  
+
+
  

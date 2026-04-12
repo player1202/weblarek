@@ -1,66 +1,80 @@
 import { IBuyer } from "../../types";
 import { ErrorMessage } from "../../types";
 import { IEvents } from "../base/Events";
+
+
 export class Customers {
-  private data: IBuyer;
-  constructor() {
-    this.data = {
-      payment: "",
-      email: "",
-      phone: "",
-      address: "",
-    };
-  }
+    payment: "online" | "cash" | "";
+    email: string;
+    phone: string;
+    address: string;
+    events: IEvents;
 
-  saveData(field: keyof typeof this.data, value: string) {
-    this.data[field] = value;
-  }
+    constructor(events: IEvents) {
+        this.payment = "";
+        this.email = "";
+        this.phone = "";
+        this.address = "";
+        this.events = events;
+    }
 
-  getAllData(): { [key: string]: string | null } {
-    return { ...this.data };
-  }
+    setPayment(payment: "online" | "cash" | ""): void {
+        this.payment = payment;
+        this.events.emit('buyer:changePayment')
+    }
 
-  resetData() {
-    this.data = {
-      payment: '',
-      address: '',
-      phone: '',
-      email: '',
-    };
-  }
+    setEmail(email: string): void {
+        this.email = email;
+        this.events.emit('buyer:changeEmail')
+    }
+
+    setPhone(phone: string): void {
+        this.phone = phone;
+        this.events.emit('buyer:changePhone')
+    }
+
+    setAddress(address: string): void {
+        this.address = address;
+        this.events.emit('buyer:changeAddress')
+    }
+
+    getAllData(): IBuyer {
+        return {
+            payment: this.payment,
+            email: this.email,
+            phone: this.phone,
+            address: this.address,
+        };
+    }
+
+    resetData(): void {
+        this.payment = "";
+        this.email = "";
+        this.phone = "";
+        this.address = "";
+        this.events.emit('buyer:clear')
+    }
+
+  
 
   validateData(): ErrorMessage {
-        const errors: ErrorMessage = {};
-        for (const [field, value] of Object.entries(this.data)) {
-            if (!value) {
-                errors[field as keyof IBuyer] = `Поле ${field} обязательно для заполнения`;
-            }
+    const errors: ErrorMessage = {};
+    if (!this.payment) {
+            errors.payment = "Не указан вид оплаты";
         }
+
+        if (!this.email) {
+            errors.email = "Введите емэйл";
+        }
+
+        if (!this.phone) {
+            errors.phone = "Введите номер телефона";
+        }
+
+        if (!this.address) {
+            errors.address = "Укажите адрес";
+        }
+
         return errors;
     }
-}
-export class CustomerModel {
-  private name: string = '';
-  private phone: string = '';
-  private address: string = '';
-  private _events: IEvents;
-
-  constructor(events: IEvents) {
-    this._events = events;
-  }
-
-  setName(name: string): void {
-    this.name = name;
-    this._events.emit('customer:data-change', { field: 'name', value: name });
-  }
-
-  setPhone(phone: string): void {
-    this.phone = phone;
-    this._events.emit('customer:data-change', { field: 'phone', value: phone });
-  }
-
-  setAddress(address: string): void {
-    this.address = address;
-    this._events.emit('customer:data-change', { field: 'address', value: address });
-  }
 }

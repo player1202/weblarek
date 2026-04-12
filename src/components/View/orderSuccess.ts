@@ -6,7 +6,7 @@ interface OrderSuccessData {
     totalSum: number;
 }
 
-export class OrderFormView extends Component<OrderSuccessData> {
+export class OrderSuccess extends Component<OrderSuccessData> {
     protected totalSumElement: HTMLElement;
     protected successButton: HTMLButtonElement;
 

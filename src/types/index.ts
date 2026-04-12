@@ -1,28 +1,46 @@
-export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
+export type ApiPostMethods = "POST" | "PUT" | "DELETE";
 
 export interface IApi {
-    get<T>(uri: string): Promise<{ data: T }>;
-    post<T>(uri: string, data: object, method?: ApiPostMethods): Promise<{ data: T }>;
+    get<T extends object>(uri: string): Promise<T>;
+    post<T extends object>(
+        uri: string,
+        data: object,
+        method?: ApiPostMethods
+    ): Promise<T>;
 }
-export interface IProduct {
-  id: string;
-  description: string;
-  image: string;
-  title: string;
-  category: string;
-  price: number | null;
-} 
+
 export interface ICardActions {
     onClick: () => void;
 }
-export interface IOrderResponse {
-  orderId: string;
-  totalAmount: number;
+
+export interface IProduct {
+    id: string;
+    description: string;
+    image: string;
+    title: string;
+    category: string;
+    price: number | null;
 }
+
 export interface IBuyer {
-  payment: string | null;
-  email: string | null;
-  phone: string | null;
-  address: string | null;
+    payment: "online" | "cash" | "";
+    email: string;
+    phone: string;
+    address: string;
 }
-export type ErrorMessage = Partial<Record<keyof IBuyer, string>>;
+
+export type IProductFromApi = {
+    total: number;
+    items: IProduct[];
+}
+
+export type IOrderRequest = IBuyer & {
+    items: string[];
+    total: number;
+};
+
+export type IOrderResponse = {
+    id: string;
+    total: number;
+}
+export type ErrorMessage = Partial<Record<keyof IBuyer, string>>; 

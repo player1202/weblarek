@@ -1,21 +1,28 @@
 import { IApi } from "../../types";
 import { IOrderResponse } from "../../types";
-import { IProduct } from "../../types";
+import { IProductFromApi } from "../../types";
+import { IOrderRequest } from "../../types";
 
 export class ServerCommunication {
-  private api: IApi;
+  api: IApi;
 
   constructor(api: IApi) {
     this.api = api;
   }
 
-  async getProducts(): Promise<IProduct[]> {
-    const response = await this.api.get("/product/");
-    return response.data as IProduct[];
+  async getItems(): Promise<any> {
+    try {
+      console.log("Запрос к API:", (this.api as any).baseUrl + "/product");
+      const response = await this.api.get("/product");
+      console.log("Ответ получен");
+      return response;
+    } catch (error) {
+      console.error("Ошибка в getItems:", error);
+      throw error;
+    }
   }
 
-  async placeOrder(data: any): Promise<IOrderResponse> {
-    const response = await this.api.post("/order/", data);
-    return response.data as IOrderResponse;
+  placeOrder(orderData: IOrderRequest): Promise<IOrderResponse> {
+    return this.api.post("/order", orderData);
   }
 }

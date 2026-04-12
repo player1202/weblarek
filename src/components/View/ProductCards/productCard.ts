@@ -1,12 +1,12 @@
-import { Component } from "../base/Component";
-import { ensureElement } from "../../utils/utils";
+import { Component } from "../../base/Component";
+import { ensureElement } from "../../../utils/utils";
 
 interface ProductCardData {
     title: string;
     price: number | null;
 }
 
-export abstract class BaseProductCardView<T> extends Component<T & ProductCardData> {
+export abstract class ProductCard<T> extends Component<T & ProductCardData> {
     protected titleElement: HTMLElement;
     protected priceElement: HTMLElement;
 
@@ -27,18 +27,10 @@ export abstract class BaseProductCardView<T> extends Component<T & ProductCardDa
     }
 
     set price(value: number | null) {
-        this.priceElement.textContent = `${value} синапсов`;
         if (value === null) {
             this.priceElement.textContent = "Бесценно";
+        } else {
+            this.priceElement.textContent = `${value} синапсов`;
         }
     }
-}
-export class ConcreteProductCard extends BaseProductCardView<{}> {
-  getTitleElement(): HTMLElement {
-    return this.titleElement;
-  }
-
-  getPriceElement(): HTMLElement {
-    return this.priceElement;
-  }
 }

@@ -20,8 +20,6 @@ import { EventEmitter } from "./components/base/Events.ts";
 import { ensureElement, cloneTemplate } from "./utils/utils.ts";
 import { IOrderRequest, IOrderResponse } from "./types/index.ts";
 
-console.log("=== ПРИЛОЖЕНИЕ ЗАПУЩЕНО ===");
-
 const events = new EventEmitter();
 
 const productsModel = new Catalog(events);
@@ -53,20 +51,10 @@ const previewCard = new ProductPreview(
   events,
 );
 
-console.log("1. Все компоненты созданы");
-
 events.on("catalog:setProducts", () => {
-  console.log("2. СОБЫТИЕ catalog:setProducts ВЫЗВАНО");
   const products = productsModel.getProducts();
-  console.log("3. Товаров в модели:", products.length);
-
-  if (!products || products.length === 0) {
-    console.warn("4. НЕТ ТОВАРОВ для отображения!");
-    return;
-  }
 
   const cards = products.map((product) => {
-    console.log("5. Создаю карточку для:", product.title);
     const card = new ProductInGallery(
       cloneTemplate<HTMLTemplateElement>("#card-catalog"),
       {
@@ -75,10 +63,7 @@ events.on("catalog:setProducts", () => {
     );
     return card.render(product);
   });
-
-  console.log("6. Карточек создано:", cards.length);
   galleryModel.gallery = cards;
-  console.log("7. Галерея обновлена");
 });
 
 events.on("basket:open", () => {
@@ -296,18 +281,12 @@ events.on("modal:close", () => {
 });
 
 async function fetchCatalog() {
-  console.log("A. НАЧАЛО ЗАГРУЗКИ КАТАЛОГА");
   try {
     const response = await apiModel.getItems();
-    console.log("B. ПОЛУЧЕН ОТВЕТ:", response);
-    console.log("C. ТОВАРОВ В ОТВЕТЕ:", response.items.length);
     productsModel.saveProducts(response.items);
-    console.log("D. ТОВАРЫ СОХРАНЕНЫ В МОДЕЛЬ");
   } catch (error) {
-    console.error("E. ОШИБКА:", error);
+    console.error("Ошибка при получении товаров:", error);
   }
 }
 
-console.log("F. ВЫЗОВ fetchCatalog");
 fetchCatalog().catch(console.error);
-console.log("G. fetchCatalog ВЫЗВАН");

@@ -4,7 +4,7 @@ import { IEvents } from "../base/Events";
 import { PaymentType } from "../../types";
 
 export class Customers {
-    payment: PaymentType;
+    payment: PaymentType | "";
     email: string;
     phone: string;
     address: string;
@@ -18,24 +18,24 @@ export class Customers {
         this.events = events;
     }
 
-    setPayment(payment: "online" | "cash" | ""): void {
+    setPayment(payment: PaymentType): void {
         this.payment = payment;
-        this.events.emit('buyer:changePayment')
+        this.events.emit('buyer:changePayment');
     }
 
     setEmail(email: string): void {
         this.email = email;
-        this.events.emit('buyer:changeEmail')
+        this.events.emit('buyer:changeEmail');
     }
 
     setPhone(phone: string): void {
         this.phone = phone;
-        this.events.emit('buyer:changePhone')
+        this.events.emit('buyer:changePhone');
     }
 
     setAddress(address: string): void {
         this.address = address;
-        this.events.emit('buyer:changeAddress')
+        this.events.emit('buyer:changeAddress');
     }
 
     getAllData(): IBuyer {
@@ -52,28 +52,16 @@ export class Customers {
         this.email = "";
         this.phone = "";
         this.address = "";
-        this.events.emit('buyer:clear')
+        this.events.emit('buyer:clear');
     }
 
-  
-
-  validateData(): ErrorMessage {
-    const errors: ErrorMessage = {};
-    if (!this.payment) {
-            errors.payment = "Не указан вид оплаты";
-        }
-
-        if (!this.email) {
-            errors.email = "Введите емэйл";
-        }
-
-        if (!this.phone) {
-            errors.phone = "Введите номер телефона";
-        }
-
-        if (!this.address) {
-            errors.address = "Укажите адрес";
-        }
+    validateData(): ErrorMessage {
+        const errors: ErrorMessage = {};
+        
+        if (!this.payment) errors.payment = "Не указан вид оплаты";
+        if (!this.email) errors.email = "Введите емэйл";
+        if (!this.phone) errors.phone = "Введите номер телефона";
+        if (!this.address) errors.address = "Укажите адрес";
 
         return errors;
     }

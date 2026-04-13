@@ -26,14 +26,10 @@ export interface IProduct {
   category: string;
   price: number | null;
 }
-
-/**
- * Тип способа оплаты
- */
-export type PaymentType = "online" | "cash" | "";
+export type PaymentType = "online" | "cash";
 
 export interface IBuyer {
-  payment: PaymentType;
+  payment: PaymentType | "";
   email: string;
   phone: string;
   address: string;

@@ -67,11 +67,8 @@ events.on("catalog:setProducts", () => {
 });
 
 events.on("basket:open", () => {
-  if (productsToBuyModel.getItemCount() === 0) {
-    basketModalModel.registerButtonDisabled = true;
-  } else {
-    basketModalModel.registerButtonDisabled = false;
-  }
+  basketModalModel.registerButtonDisabled =
+    productsToBuyModel.getItemCount() === 0;
   modalWindowModel.content = basketModalModel.render();
 });
 
@@ -113,9 +110,8 @@ events.on("product:delete", (product: IProduct) => {
 
 events.on("basket:change", () => {
   const products = productsToBuyModel.getProductsToBuy();
-  let basketCounter = 0;
 
-  const arrProducts = products.map((product) => {
+  const arrProducts = products.map((product, index) => {
     const productToBuy = productsModel.getProductById(product.id);
     const basketCard = new ProductInBasket(
       cloneTemplate<HTMLElement>("#card-basket"),
@@ -123,16 +119,16 @@ events.on("basket:change", () => {
         onClick: () => events.emit("product:delete", product),
       },
     );
-    basketCounter++;
-    basketCard.index = basketCounter;
+    basketCard.index = index + 1;
     return basketCard.render(productToBuy);
   });
-  if (productsToBuyModel.getItemCount() === 0) {
-    basketModalModel.registerButtonDisabled = true;
-  }
-  headerModel.counter = basketCounter;
+
+  const itemCount = productsToBuyModel.getItemCount();
+
+  headerModel.counter = itemCount;
   basketModalModel.totalPrice = productsToBuyModel.getTotalCost();
   basketModalModel.items = arrProducts;
+  basketModalModel.registerButtonDisabled = itemCount === 0;
 });
 
 events.on("basket:submit", () => {
@@ -258,27 +254,14 @@ events.on("contacts:submit", async () => {
   };
   try {
     const response = await apiModel.placeOrder(orderRequest);
-    events.emit("api:successPost", response);
+    // Убрали событие api:successPost, вызываем методы напрямую
+    productsToBuyModel.clearCart();
+    buyerInfoModel.resetData();
+    orderSuccessModel.totalSum = response.total;
+    modalWindowModel.content = orderSuccessModel.render();
   } catch (error) {
-    throw error;
+    console.error("Ошибка при оформлении заказа:", error);
   }
-});
-
-events.on("api:successPost", (response: IOrderResponse) => {
-  productsToBuyModel.clearCart();
-  buyerInfoModel.resetData();
-  orderSuccessModel.totalSum = response.total;
-  modalWindowModel.content = orderSuccessModel.render();
-});
-
-events.on("basket:clear", () => {
-  const productsInBasket: HTMLElement[] = [];
-  const basketCounter = 0;
-
-  headerModel.counter = basketCounter;
-  basketModalModel.totalPrice = productsToBuyModel.getTotalCost();
-  basketModalModel.items = productsInBasket;
-  basketModalModel.registerButtonDisabled = true;
 });
 
 events.on("buyer:clear", () => {
@@ -301,22 +284,8 @@ events.on("modal:close", () => {
 async function fetchCatalog() {
   try {
     const response = await apiModel.getItems();
-    
-    let products: IProduct[] = [];
-    
-    if (Array.isArray(response)) {
-      products = response;
-    } else if (response && response.items) {
-      products = response.items;
-    } else if (response && response.products) {
-      products = response.products;
-    } else {
-      console.error("Неизвестная структура ответа:", response);
-      return;
-    }
-    
-    productsModel.saveProducts(products);
-    events.emit("catalog:setProducts");
+    console.log("Товары загружены:", response.items.length);
+    productsModel.saveProducts(response.items);
   } catch (error) {
     console.error("Ошибка при получении товаров:", error);
   }

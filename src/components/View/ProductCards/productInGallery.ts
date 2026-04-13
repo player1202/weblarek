@@ -36,21 +36,12 @@ export class ProductInGallery extends ProductCard<ProductInGalleryData> {
             ([key]) => key === value
         );
         if (categoryClass) {
-            this.categoryElement.classList.add(`${categoryClass[1]}`);
+            this.categoryElement.classList.add(categoryClass[1]);
         }
     }
 
     set image(value: string) {
         this.imageElement.src = CDN_URL + value;
         this.imageElement.alt = this.titleElement.textContent || 'Товар';
-    }
-
-    // Добавьте метод render для правильной установки всех полей
-    render(data: any): HTMLElement {
-        this.title = data.title;
-        this.price = data.price;
-        this.category = data.category;
-        this.image = data.image;
-        return this.container;
     }
 }

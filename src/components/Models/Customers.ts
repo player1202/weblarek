@@ -1,10 +1,10 @@
 import { IBuyer } from "../../types";
 import { ErrorMessage } from "../../types";
 import { IEvents } from "../base/Events";
-
+import { PaymentType } from "../../types";
 
 export class Customers {
-    payment: "online" | "cash" | "";
+    payment: PaymentType;
     email: string;
     phone: string;
     address: string;
